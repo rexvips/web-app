@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Routine & Meditation App</title>
+    
+    <!-- PWA Configuration -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#007AFF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Daily Routine">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => console.log('SW registered:', registration))
+                    .catch(error => console.log('SW registration failed:', error));
+            });
+        }
+    </script>
+</head>
+<body>
+    <div id="app">
+        <!-- Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-btn active" data-tab="dashboard">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Dashboard</span>
+            </button>
+            <button class="nav-btn" data-tab="routines">
+                <span class="nav-icon">📋</span>
+                <span class="nav-label">Routines</span>
+            </button>
+            <button class="nav-btn" data-tab="meditation">
+                <span class="nav-icon">🧘</span>
+                <span class="nav-label">Meditation</span>
+            </button>
+            <button class="nav-btn" data-tab="settings">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-label">Settings</span>
+            </button>
+        </nav>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard-tab" class="tab-content active">
+            <header class="page-header">
+                <h1>Dashboard</h1>
+                <p class="date">Today, October 16, 2025</p>
+            </header>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Routines Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">7</div>
+                    <div class="stat-label">Day Streak</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">Minutes Meditated</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">85%</div>
+                    <div class="stat-label">Weekly Progress</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>Today's Routines</h2>
+                <div class="routine-list">
+                    <div class="routine-item completed">
+                        <span class="routine-icon">✅</span>
+                        <span class="routine-name">Morning Meditation</span>
+                        <span class="routine-time">7:00 AM</span>
+                    </div>
+                    <div class="routine-item">
+                        <span class="routine-icon">⭕</span>
+                        <span class="routine-name">Evening Exercise</span>
+                        <span class="routine-time">6:00 PM</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Routines Tab -->
+        <div id="routines-tab" class="tab-content">
+            <header class="page-header">
+                <h1>Routines</h1>
+                <button class="add-btn" onclick="addRoutine()">+ Add Routine</button>
+            </header>
+            
+            <div class="routine-categories">
+                <div class="category">
+                    <h3>Morning</h3>
+                    <div class="routine-list">
+                        <div class="routine-item">
+                            <span class="routine-icon">🧘</span>
+                            <span class="routine-name">Meditation</span>
+                            <span class="routine-duration">10 min</span>
+                        </div>
+                        <div class="routine-item">
+                            <span class="routine-icon">📖</span>
+                            <span class="routine-name">Reading</span>
+                            <span class="routine-duration">20 min</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="category">
+                    <h3>Evening</h3>
+                    <div class="routine-list">
+                        <div class="routine-item">
+                            <span class="routine-icon">🏃</span>
+                            <span class="routine-name">Exercise</span>
+                            <span class="routine-duration">30 min</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Meditation Tab -->
+        <div id="meditation-tab" class="tab-content">
+            <header class="page-header">
+                <h1>Meditation</h1>
+                <p class="subtitle">Find your inner peace</p>
+            </header>
+            
+            <div class="meditation-types">
+                <div class="meditation-card" onclick="startBoxBreathing()">
+                    <div class="meditation-icon">🫁</div>
+                    <h3>Box Breathing</h3>
+                    <p>4-4-4-4 breathing pattern with configurable timing</p>
+                    <div class="meditation-duration">5-60 minutes</div>
+                </div>
+                
+                <div class="meditation-card" onclick="startFourSevenEight()">
+                    <div class="meditation-icon">💨</div>
+                    <h3>4-7-8 Breathing</h3>
+                    <p>Relaxing breathing technique for stress relief</p>
+                    <div class="meditation-duration">5-30 minutes</div>
+                </div>
+            </div>
+            
+            <!-- Meditation Session UI (Hidden by default) -->
+            <div id="meditation-session" class="meditation-session hidden">
+                <div class="session-header">
+                    <h2 id="session-type">Box Breathing</h2>
+                    <button class="close-btn" onclick="stopMeditation()">×</button>
+                </div>
+                
+                <div class="breathing-circle">
+                    <div id="breathing-indicator" class="breathing-indicator">
+                        <div class="inner-circle">
+                            <div id="breathing-text" class="breathing-text">Inhale</div>
+                            <div id="breathing-count" class="breathing-count">4</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="session-controls">
+                    <div class="time-display">
+                        <span id="elapsed-time">00:00</span> / <span id="total-time">05:00</span>
+                    </div>
+                    
+                    <div class="control-buttons">
+                        <button id="play-pause-btn" class="control-btn primary" onclick="toggleMeditation()">
+                            <span id="play-pause-text">Start</span>
+                        </button>
+                        <button class="control-btn" onclick="stopMeditation()">Stop</button>
+                    </div>
+                    
+                    <div class="settings-row">
+                        <label>
+                            <input type="checkbox" id="audio-cues" checked>
+                            Audio Cues
+                        </label>
+                        <label>
+                            <input type="checkbox" id="haptic-feedback" checked>
+                            Haptic Feedback
+                        </label>
+                    </div>
+                    
+                    <div class="timing-controls">
+                        <label>Cue Interval: 
+                            <select id="cue-interval">
+                                <option value="4">4 seconds</option>
+                                <option value="5">5 seconds</option>
+                                <option value="6">6 seconds</option>
+                                <option value="7">7 seconds</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings-tab" class="tab-content">
+            <header class="page-header">
+                <h1>Settings</h1>
+            </header>
+            
+            <div class="settings-sections">
+                <div class="settings-section">
+                    <h3>Notifications</h3>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" checked>
+                            Daily Reminders
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" checked>
+                            Meditation Reminders
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h3>Audio</h3>
+                    <div class="setting-item">
+                        <label>Volume: 
+                            <input type="range" min="0" max="100" value="80">
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h3>About</h3>
+                    <div class="setting-item">
+                        <span>Version 1.0.0</span>
+                    </div>
+                    <div class="setting-item">
+                        <button onclick="showInstallPrompt()">Install App</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Audio Elements -->
+    <audio id="inhale-sound" preload="auto">
+        <source src="sounds/inhale.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="exhale-sound" preload="auto">
+        <source src="sounds/exhale.mp3" type="audio/mpeg">
+    </audio>
+    
+    <script src="app.js"></script>
+</body>
+</html>
